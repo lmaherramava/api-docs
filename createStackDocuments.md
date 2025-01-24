@@ -2,7 +2,7 @@
 
 Метод позволяет отправить в систему пакет состоящий из N-го количества документов. 
 
-**POST /createStackDocuments**
+```POST /createStackDocuments```
 
 ### Формат запроса
 
