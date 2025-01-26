@@ -1,3 +1,4 @@
-title: My Markdown Site
-description: This is a simple website built with GitHub Pages and Markdown
-theme: jekyll-theme-minimal
+title: My Awesome Site
+   description: This is my awesome site built with Jekyll and GitHub Pages.
+   baseurl: ""
+   url: "https://lmaherramava.github.io" 
