@@ -1,0 +1,214 @@
+openapi: 3.0.0
+info:
+  title: REST API-документация платформы DropCat
+  description: API для получения информации о партнерах организации, включая их основные реквизиты.
+  version: 1.5.0  # Обновление версии на 1.5
+  contact:
+    name: Support Team
+    email: support@ediweb.ru
+    url: https://www.ediweb.ru
+  testingEnvironment:
+servers:
+  - url: http://common-api.egw.dropcat.test.lan/edi/api/v1.1
+    description: Тестовый стенд
+  - url: https://dapi-preprod.ediweb.ru/edi/api/v1.1
+    description: Предпродуктивный стенд
+  - url: https://dapi-prod.ediweb.ru/edi/api/v1.1
+    description: Продуктивный стенд
+
+paths:
+  /getPartners:
+    get:
+      summary: Получение списка партнеров организации
+      description: Запрос для получения списка партнеров организации-инициатора с основными реквизитами.
+      operationId: getPartners
+      parameters:
+        - name: id_type
+          in: query
+          description: Тип идентификатора. 
+          required: true
+          schema:
+            type: string
+            enum:
+              - gln
+              - fns
+        - name: org_id
+          in: query
+          description: Идентификатор организации-инициатора запроса.
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Наименование организации-партнера в кодировке base64.
+          required: false
+          schema:
+            type: string
+        - name: iln
+          in: query
+          description: Идентификатор GLN организации-партнера.
+          required: false
+          schema:
+            type: string
+        - name: inn
+          in: query
+          description: ИНН организации-партнера.
+          required: false
+          schema:
+            type: string
+
+      security:
+        - BasicAuth: []  # Указание на необходимость Basic Authentication для доступа
+
+      responses:
+        '200':
+          description: Успешный ответ с данными о партнерах.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Partner'
+              examples:
+                example-1:
+                  summary: Пример успешного ответа
+                  value:
+                    - name: "ООО Ромашка"
+                      iln: "1234567890123"
+                      inn: "7722334455"
+                      kpp: "123456789"
+                      fnsId: "12345"
+                      addresses:
+                        - countryCode: "RU"
+                          zip: "101000"
+                          regionCode: "77"
+                          regionType: "Московская область"
+                          district: "Центральный"
+                          city: "Москва"
+                          area: "Москва"
+                          localityType: "город"
+                          locality: "Москва"
+                          street: "Тверская"
+                          streetType: "улица"
+                          building: "10"
+                          addInf: "Между 1-й и 2-й улицей"
+                          flat: "5"
+                          block: "B"
+                          type: "LEGAL"
+        '400':
+          description: Некорректный запрос. Отсутствуют необходимые параметры или они имеют неверный формат.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error400'
+        '500':
+          description: Ошибка на сервере.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error500'
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+
+  schemas:
+    Partner:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Наименование организации-партнера.
+        iln:
+          type: string
+          description: Идентификатор GLN организации.
+        inn:
+          type: string
+          description: ИНН организации.
+        kpp:
+          type: string
+          description: КПП организации.
+        fnsId:
+          type: string
+          description: Идентификатор в Федеральной налоговой службе.
+        addresses:
+          type: array
+          items:
+            type: object
+            properties:
+              countryCode:
+                type: string
+                description: Код страны.
+              zip:
+                type: string
+                description: Почтовый индекс.
+              regionCode:
+                type: string
+                description: Код региона.
+              regionType:
+                type: string
+                description: Тип региона.
+              district:
+                type: string
+                description: Район.
+              city:
+                type: string
+                description: Город.
+              area:
+                type: string
+                description: Область.
+              localityType:
+                type: string
+                description: Тип местности.
+              locality:
+                type: string
+                description: Местность.
+              street:
+                type: string
+                description: Улица.
+              streetType:
+                type: string
+                description: Тип улицы.
+              building:
+                type: string
+                description: Здание.
+              addInf:
+                type: string
+                description: Дополнительная информация.
+              flat:
+                type: string
+                description: Квартира.
+              block:
+                type: string
+                description: Блок.
+              type:
+                type: string
+                description: Тип адреса (например, **LEGAL**).
+
+    Error400:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Описание ошибки.
+        message:
+          type: string
+          description: Подробное сообщение об ошибке, объясняющее, что не так с запросом.
+      example:
+        error: "Invalid request"
+        message: "Missing required parameter 'org_id' or invalid parameter format."
+
+    Error500:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Описание ошибки.
+        message:
+          type: string
+          description: Подробное сообщение об ошибке, объясняющее причину сбоя на сервере.
+      example:
+        error: "Internal Server Error"
+        message: "An unexpected error occurred while processing the request."
